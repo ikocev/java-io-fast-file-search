@@ -8,7 +8,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
 
@@ -31,7 +34,7 @@ public class Main {
         long occurrences = 0;
         long fileLength = 0;
 
-        try(final RandomAccessFile file = new RandomAccessFile(PATH, "r")) {
+        try (final RandomAccessFile file = new RandomAccessFile(PATH, "r")) {
             fileLength = file.getChannel().size();
         } catch (IOException e) {
             e.printStackTrace();
@@ -43,7 +46,7 @@ public class Main {
 
         final List<CompletableFuture<Long>> threads = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_THREADS; i++) {
-            final long startIndex =  i * slices;
+            final long startIndex = i * slices;
             System.out.println("Spawning thread with start=" + startIndex + " and length=" + slices);
 
             threads.add(CompletableFuture.supplyAsync(() -> readFile(startIndex, slices), executorService));
@@ -63,13 +66,13 @@ public class Main {
     private static long readFile(final long start, final long length) {
         long counter = 0;
 
-        try(final RandomAccessFile file = new RandomAccessFile(PATH, "r")) {
+        try (final RandomAccessFile file = new RandomAccessFile(PATH, "r")) {
             final MappedByteBuffer mb = file.getChannel().map(FileChannel.MapMode.READ_ONLY, start, length);
 
             byte[] bufferArray = new byte[BUFFER_SIZE];
             int bufferSize;
 
-            while(mb.hasRemaining()) {
+            while (mb.hasRemaining()) {
                 bufferSize = Math.min(mb.remaining(), BUFFER_SIZE);
 
                 mb.get(bufferArray, 0, bufferSize);
@@ -88,7 +91,7 @@ public class Main {
                     }
                 }
             }
-        }  catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
