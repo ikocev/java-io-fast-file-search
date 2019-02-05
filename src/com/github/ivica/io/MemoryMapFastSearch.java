@@ -1,4 +1,6 @@
-package com.ivica.wordinfile;
+package com.github.ivica.io;
+
+import com.sun.istack.internal.NotNull;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
